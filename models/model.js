@@ -28,10 +28,16 @@ const WorkoutSchema = new Schema({
       },
       distance: {
         type: Number
+      },
+      duration: {
+        type: Number
       }
     }
   ],
-  duration: {
+  totalDuration : {
+    type: Number
+  },
+  totalDistance: {
     type: Number
   }
 })
