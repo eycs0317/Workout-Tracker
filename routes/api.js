@@ -2,32 +2,28 @@ const express = require('express')
 const router = express.Router();
 const { Workout } = require('../models/model.js')
 const mongoose = require("mongoose");
-console.log('Wokrrer------', Workout)
+// console.log('Wokrrer------', Workout)
 
 
-//get last work out
-router.get('/workouts', (req, res) => {
-  Workout.find({})
-  .then(data => {
-    // console.log(data)
+//get last work out - semi-OK
+router.get('/workouts',  async (req, res) => {
+  try {
+    var data = await Workout.aggregate([
+      {
+        $addFields: {
+          totalDuration: { $sum: '$exercises.duration'}
+        }
+      }
+    ])
+    console.log('data', data)
     res.json(data)
-  })
-  .catch(err => {
+  }
+  catch (err) {
     res.json(err)
-  })
+  }
 })
 
-router.post('/workouts', (req, res) => {
-  var body = req.body
-  console.log('inside post /workouts')
-  console.log('body----', body)
-  Workout.create(body)
-  .then(data => {
-    res.json(data)
-  })
-  .catch(err => {
-    res.json(err)
-  })
+router.post('/workouts', async (req, res) => {
 
 })
 
@@ -39,28 +35,50 @@ router.put('/workouts/:id', (req, res) => {
   var body = req.body
   console.log('iddddd', id) //something wrong with the id
   console.log('iddddd', body)
-  Workout.create({exercises: body})
-  .then(data => {
-    // console.log(data)
-    res.json(data)
-  })
-  .catch(err => {
-    // console.log(err)
-    res.json(err)
-  })
+  // Workout.create(
+  //   {id: id},
+  //   {
+  //     $push: { exercises: body}
+  //   }
+  // )
+  // .then(data => {
+  //   console.log('data from put route', data)
+  //   res.json(data)
+  // })
+  // .catch(err => {
+  //   // console.log(err)
+  //   res.json(err)
+  // })
 })
 
 
-//range
+//range - OK
 router.get('/workouts/range', (req, res) => {
   console.log('inside get /workouts/range')
-  Workout.find({})
-  .then(data => {
-    // console.log('in range--------', data)
+  Workout.aggregate([
+    {
+      $addFields: { totalDuration: { $sum: '$exercises.duration'}}
+    },
+    {
+      $sort: { day: 1}
+    },
+    {
+      $limit: 7
+    }
+  ])
+  //.sort({ field: 'asc', test: -1 })
 
-    var last7 = data.splice(data.length - data.length - 7)
-    console.log('last7777', last7)
-    res.json(last7)
+  .then(data => {
+    console.log('dataaa', data)
+    var temp = 0;
+
+    for(var i = 0; i < data.length; i++) {
+      console.log(data[i].exercises[0].name)
+      temp = data[i].exercises[0].duration
+      data[i].totalDuration = temp
+    }
+    data = data.slice(-7)
+    res.json(data)
   })
   .catch(err => {
     res.json(err)
