@@ -36,29 +36,6 @@ router.post('/workouts', async (req, res) => {
 })
 
 
-//ann and complete btn
-// router.put('/workouts/:id', (req, res) => {
-//   console.log('inside put /workouts/:id')
-//   var id = req.params.id
-//   var body = req.body
-//   console.log('iddddd', id) //something wrong with the id
-//   console.log('iddddd', body)
-//   // Workout.create(
-//   //   {id: id},
-//   //   {
-//   //     $push: { exercises: body}
-//   //   }
-//   // )
-//   // .then(data => {
-//   //   console.log('data from put route', data)
-//   //   res.json(data)
-//   // })
-//   // .catch(err => {
-//   //   // console.log(err)
-//   //   res.json(err)
-//   // })
-// })
-
 router.put("/workouts/:id", ({ body, params }, res) => {
   Workout.findByIdAndUpdate(
       params.id,
